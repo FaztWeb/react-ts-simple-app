@@ -1,31 +1,29 @@
-import * as React from 'react';
+import React from "react";
+import { TaskCard } from "./TaskCard";
+import { Task } from "../interfaces/Task";
+import { BiTaskX } from "react-icons/bi";
 
-import { ITask } from './Task';
-
-class TaskList extends React.Component<ITaskListProps, any> {
-    render(): JSX.Element[] {
-        return this.props.tasks.map((task: ITask, i: number) => {
-            return (
-                <div className="col-md-4 mt-2" key={task.id}>
-                    <div className="card card-body text-center">
-                        <h3>{task.title}</h3>
-                        <p>{task.description}</p>
-                        <button 
-                            className="btn btn-danger btn-block"
-                            onClick={() => this.props.deleteATask(task.id)}
-                            >
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            )
-        });
-    }
+interface Props {
+  tasks: Task[];
+  deleteATask: (id: number) => any;
 }
 
-interface ITaskListProps {
-    tasks: ITask[];
-    deleteATask: (id: number) => any;
-}
+export const TaskList = ({ tasks, deleteATask }: Props): JSX.Element => {
+  if (tasks.length === 0)
+    return (
+      <div className="text-light text-center">
+        <h1>There are no tasks yet</h1>
+        <BiTaskX size="20rem" />
+      </div>
+    );
 
-export default TaskList;
+  return (
+    <>
+      {tasks.map((task, i) => (
+        <div className="col-md-4 mt-2">
+          <TaskCard key={task.id} task={task} deleteATask={deleteATask} />
+        </div>
+      ))}
+    </>
+  );
+};

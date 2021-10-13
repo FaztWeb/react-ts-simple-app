@@ -1,79 +1,58 @@
-import * as React from 'react';
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { Task } from "../interfaces/Task";
+import { AiOutlinePlus } from "react-icons/ai";
 
-import { ITask } from './Task';
-
-class TaskForm extends React.Component<ITaskFormProps, any> {
-
-    private titleInput = React.createRef<HTMLInputElement>();
-
-    constructor(props: ITaskFormProps) {
-        super(props);
-        this.state = {
-            title: '',
-            description: '',
-        };
-    }
-
-    private getCurrentTimestamp(): number {
-        const date: Date = new Date();
-        console.log(date.getTime())
-        return date.getTime();
-    }
-
-    public handleNewTask(e: React.FormEvent<HTMLFormElement>): any {
-        e.preventDefault();
-        const newTask: ITask = {
-            title: this.state.title,
-            description: this.state.description,
-            id: this.getCurrentTimestamp(),
-            completed: false
-        };
-        this.setState({ title: '', description: '' });
-        this.titleInput.current.focus();
-        this.props.addANewTask(newTask);
-    }
-
-    handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { value, name } = e.target;
-        this.setState({
-            [name]: value
-        });
-    }
-
-    render() {
-        return (
-            <div className="card card-body">
-                <form onSubmit={e => this.handleNewTask(e)}>
-                    <div className="form-group">
-                        <input type="text"
-                            placeholder="Add A Task"
-                            name="title"
-                            onChange={e => this.handleInputChange(e)}
-                            value={this.state.title}
-                            className="form-control"
-                            autoFocus
-                            ref={this.titleInput}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <textarea
-                            onChange={e => this.handleInputChange(e)}
-                            name="description"
-                            className="form-control"
-                            value={this.state.description}
-                        ></textarea>
-                    </div>
-                    <button type="submit" className="btn btn-primary btn-block">
-                        Save
-                    </button>
-                </form>
-            </div>
-        )
-    }
+interface Props {
+  addANewTask: (task: Task) => void;
 }
 
-interface ITaskFormProps {
-    addANewTask: (task: ITask) => void;
-}
+type HandleInputChange = ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
 
-export default TaskForm;
+const inititalState = {
+  title: "",
+  description: "",
+};
+
+export const TaskForm = ({ addANewTask }: Props) => {
+  const [task, setTask] = useState<Task>(inititalState);
+  const titleInput = useRef<HTMLInputElement>(null);
+
+  const handleNewTask = (e: FormEvent<HTMLFormElement>): any => {
+    e.preventDefault();
+    addANewTask(task);
+    setTask(inititalState);
+    titleInput.current?.focus();
+  };
+
+  const handleInputChange = ({ target: { name, value } }: HandleInputChange) =>
+    setTask({ ...task, [name]: value });
+
+  return (
+    <div className="card card-body bg-secondary text-dark">
+      <h1>Add a Task</h1>
+
+      <form onSubmit={handleNewTask}>
+        <input
+          type="text"
+          placeholder="Write a Title"
+          name="title"
+          onChange={handleInputChange}
+          value={task.title}
+          className="form-control mb-3 rounded-0 shadow-none border-0"
+          autoFocus
+          ref={titleInput}
+        />
+        <textarea
+          onChange={handleInputChange}
+          name="description"
+          className="form-control mb-3 shadow-none border-0"
+          placeholder="Write a Description"
+          value={task.description}
+        ></textarea>
+        <button type="submit" className="btn btn-primary">
+          Save <AiOutlinePlus />
+        </button>
+      </form>
+    </div>
+  );
+};
